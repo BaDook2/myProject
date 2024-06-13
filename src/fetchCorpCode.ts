@@ -1,5 +1,5 @@
 
-const fetchCorpCode = async (name: string) => {
+const fetchCorpCode = async (name: string): Promise<string|null> => {
   try {
     const response = await fetch("../CORPCODE.xml");
     const data = await response.text();
@@ -13,7 +13,7 @@ const fetchCorpCode = async (name: string) => {
         return lists[i].getElementsByTagName('corp_code')[0].textContent;
       }
     }
-    return null; // corp_name이 없는 경우
+    return null;
   } catch (error) {
     console.error('Error fetching XML:', error);
     return null;
