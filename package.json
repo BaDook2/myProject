@@ -1,0 +1,14 @@
+{
+  "name": "myproject",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "start": "concurrently \"npm run dev --prefix client\" \"npm run start --prefix server\"",
+    "install-all": "npm install && npm install --prefix client && npm install --prefix server"
+  }
+}

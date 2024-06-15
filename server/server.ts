@@ -1,11 +1,15 @@
-const express = require('express')
-const app = express()
-const port = 3000
+import { Request, Response } from "express";
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+const express = require('express');
+const app = express();
+const path = require('path');
+
+app.listen(1234, () => {
+  console.log('listening on 1234');
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+app.get('/', (req: Request, res: Response)=>{
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 })
