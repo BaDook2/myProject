@@ -10,7 +10,7 @@ interface ICorpFs {
   targetFS: FS_KIND;
 }
 
-const fetchCorpFS = async ({
+const fetchCorpAllFS = async ({
   corpCode,
   targetYear,
   targetReport,
@@ -22,4 +22,4 @@ const fetchCorpFS = async ({
   return data;
 };
 
-export default fetchCorpFS;
+export default fetchCorpAllFS;

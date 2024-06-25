@@ -2,11 +2,11 @@ import fetchCorpCode from "./fetchCorpCode";
 import { useForm } from "react-hook-form";
 import Input from "./Components/Input";
 import { REPORT_CODE } from "./Constants";
-// import { FS_KIND, REPORT_CODE } from "./Constants";
-import fetchCorpKeyFS from "./fetchSingleCompanyKeyAccounts";
 import { useState } from "react";
 // import fetchCorpFS from "./fetchSingleCompanyFinancialStatements";
 import convertDateToQurter from "./convertDateToQurter";
+import fetchCorpKeyFS from "./fetchCompanyKeyFS";
+
 interface IData {
   corpName: string;
   targetYear: string;
@@ -46,28 +46,21 @@ function App() {
   const onSubmit = async (data: IData) => {
     const corpCode = await fetchCorpCode(data.corpName);
     if (corpCode) {
-      // const CorpFs = await fetchCorpFS({
-      //   corpCode,
-      //   targetYear: data.targetYear,
-      //   targetReport: data.targetReport as REPORT_CODE,
-      //   targetFS: data.targetFS as FS_KIND,
-      // });
       const CorpFs = await fetchCorpKeyFS({
         corpCode,
         targetYear: data.targetYear,
         targetReport: data.targetReport as REPORT_CODE,
       });
-      console.log(CorpFs);
       setFsData(CorpFs.list);
       return corpCode;
     }
+    console.log(corpCode)
   };
-
+  
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
         {needsArr.map((item, index) => (
-
           <Input
             key={index}
             type="text"
@@ -77,10 +70,13 @@ function App() {
         ))}
         <button type="submit">검색</button>
       </form>
-      <button onClick={() => setUnit(1)}>일 원</button>
-      <button onClick={() => setUnit(1000)}>천 원</button>
-      <button onClick={() => setUnit(1000000)}>백 만원</button>
-      <button onClick={() => setUnit(1000000000)}>십 억 원</button>
+      <div>1분기보고서 : 11013 반기보고서 : 11012</div>
+      <div>3분기보고서 : 11014 사업보고서 : 11011</div>
+      <div>OFS: 재무제표 CFS: 연결재무제표</div>
+      <button className="border-2 border-black rounded-lg" onClick={() => setUnit(1)}>일 원</button>
+      <button className="border-2 border-black rounded-lg" onClick={() => setUnit(1000)}>천 원</button>
+      <button className="border-2 border-black rounded-lg" onClick={() => setUnit(1000000)}>백 만원</button>
+      <button className="border-2 border-black rounded-lg" onClick={() => setUnit(1000000000)}>십 억 원</button>
       {fsData && (
         <table>
           <thead>
