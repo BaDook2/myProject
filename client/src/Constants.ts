@@ -1,3 +1,5 @@
+export const dartURL = "https://opendart.fss.or.kr";
+
 export const API_KEY = "6e6456b37d067b5904d94d84b392683056bb3919";
 
 // 1분기보고서 : 11013 반기보고서 : 11012

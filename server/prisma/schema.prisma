@@ -16,17 +16,18 @@ datasource db {
 }
 
 model Company {
-  corpCode  String         @id
-  corpName  String
+  corpCode   String          @id
+  corpName   String
   financials FinancialData[]
 }
 
 model FinancialData {
-  id        Int      @id @default(autoincrement())
-  company   Company  @relation(fields: [corpCode], references: [corpCode])
-  corpCode  String
+  id              Int     @id @default(autoincrement())
+  company         Company @relation(fields: [corpCode], references: [corpCode])
+  corpCode        String
   isQuarterlyData Boolean
-  year      String
-  quarter   String
-  data      Json
+  year            String
+  quarter         String
+  data            Json
+  FS              String
 }

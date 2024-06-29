@@ -1,7 +1,7 @@
 // FSM = Financial Statements
 // dart
 
-import { API_KEY, FS_KIND, REPORT_CODE } from "./Constants";
+import { API_KEY, FS_KIND, REPORT_CODE, dartURL } from "../client/src/Constants";
 
 interface ICorpFs {
   corpCode: string;
@@ -16,7 +16,7 @@ const fetchCorpAllFS = async ({
   targetReport,
   targetFS,
 }: ICorpFs) => {
-  const URL = `api/fnlttSinglAcntAll.json?crtfc_key=${API_KEY}&corp_code=${corpCode}&bsns_year=${targetYear}&reprt_code=${targetReport}&fs_div=${targetFS}`;
+  const URL = `${dartURL}/api/fnlttSinglAcntAll.json?crtfc_key=${API_KEY}&corp_code=${corpCode}&bsns_year=${targetYear}&reprt_code=${targetReport}&fs_div=${targetFS}`;
   const response = await fetch(URL);
   const data = await response.json();
   return data;

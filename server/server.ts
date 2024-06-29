@@ -2,8 +2,17 @@ import { PrismaClient } from "@prisma/client";
 import express, { Request, Response } from "express";
 import path from "path";
 import dotenv from "dotenv"; // dotenv 모듈 불러오기
-
+import fetchCorpKeyFS from "./fetchCorpKeyFS";
+import fetchCorpCode from "./fetchCorpCode";
+import {REPORT_CODE} from "../client/src/Constants";
 dotenv.config(); // dotenv 초기화
+
+interface IData {
+  corpName: string;
+  targetYear: string;
+  targetQuarter: REPORT_CODE;
+  targetFS: string;
+}
 
 const app = express();
 const prisma = new PrismaClient();
@@ -28,37 +37,36 @@ app.get("/", (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
-app.post("/api/financial-data", async (req, res) => {
-  const { corpCode, corpName, financialData }: FinancialDataRequest = req.body;
+app.get("/api/financial-data", async (req, res) => {
+  const { corpName, targetYear, targetQuarter, targetFS }: IData = req.body;
+  const corpCode = await fetchCorpCode(corpName);
+  // const { corpCode, corpName, financialData }: FinancialDataRequest = req.body;
+  
+  try{
+    
+    if(corpCode){
+    const financialData = await prisma.financialData.findFirst({
+      where: {
+        corpCode: corpCode,
+        year: targetYear,
+        quarter: targetQuarter,
+        FS: targetFS  
+      }
+    })
+    if(financialData) {
+      res.json(financialData);
+    } else {
+      try{
+      const res = fetchCorpKeyFS({ corpCode, targetYear, targetQuarter });
+      const newFinancialData = await prisma.financialData.create({
 
-  try {
-    const company = await prisma.company.upsert({
-      where: { corpCode: corpCode },
-      update: {},
-      create: {
-        corpCode,
-        corpName,
-      },
-    });
+      })
+      }
+    }
+  } else {
+    return "no Data exists"
+  }}catch(){
 
-    const financialEntries = financialData.map((data: FinancialDataEntry) => {
-      return {
-        companyId: company.id,
-        year: data.year,
-        quarter: data.quarter,
-        data: data.data,
-      };
-    });
-
-    await prisma.financialData.createMany({
-      data: financialEntries,
-      skipDuplicates: true,
-    });
-
-    res.status(200).json({ message: "Financial data saved successfully" });
-  } catch (error) {
-    console.error("Failed to save financial data", error);
-    res.status(500).json({ error: "Internal server error" });
   }
 });
 

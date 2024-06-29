@@ -1,62 +1,42 @@
-import fetchCorpCode from "./fetchCorpCode";
 import { useForm } from "react-hook-form";
 import Input from "./Components/Input";
-import { REPORT_CODE } from "./Constants";
 import { useState } from "react";
+import fetchFinancialData from "./fetchFinancialData";
 // import fetchCorpFS from "./fetchSingleCompanyFinancialStatements";
-import convertDateToQurter from "./convertDateToQurter";
-import fetchCorpKeyFS from "./fetchCompanyKeyFS";
 
-interface IData {
+export interface IData {
   corpName: string;
   targetYear: string;
-  targetReport: string;
+  targetQurter: string;
   targetFS: string;
 }
 
-interface IFSData {
-  account_nm: string;
-  bfefrmtrm_amount: string;
-  bfefrmtrm_dt: string;
-  bfefrmtrm_nm: string;
-  bsns_year: string;
-  corp_code: string;
-  currency: string;
-  frmtrm_amount: string;
-  frmtrm_dt: string;
-  frmtrm_nm: string;
-  fs_div: string;
-  fs_nm: string;
-  ord: string;
-  rcept_no: string;
-  reprt_code: string;
-  sj_div: string;
-  sj_nm: string;
-  stock_code: string;
-  thstrm_amount: string;
-  thstrm_dt: string;
-  thstrm_nm: string;
+export interface IFSData {
+  account_nm: string
+  bsns_yearAndQuarter: string[]
+  amount: number[]
 }
 
 function App() {
   const { register, handleSubmit } = useForm<IData>();
-  const needsArr = ["corpName", "targetYear", "targetReport", "targetFS"];
+  const needsArr = ["corpName", "targetYear", "targetQurter", "targetFS"];
   const [fsData, setFsData] = useState<IFSData[]>();
+  const [err, setErr] = useState('');
   const [unit, setUnit] = useState(1);
   const onSubmit = async (data: IData) => {
-    const corpCode = await fetchCorpCode(data.corpName);
-    if (corpCode) {
-      const CorpFs = await fetchCorpKeyFS({
-        corpCode,
-        targetYear: data.targetYear,
-        targetReport: data.targetReport as REPORT_CODE,
-      });
-      setFsData(CorpFs.list);
-      return corpCode;
+    const CorpFs = await fetchFinancialData({
+      corpName: data.corpName,
+      targetYear: data.targetYear,
+      targetQurter: data.targetQurter,
+      targetFS: data.targetFS
+    });
+    if (typeof (CorpFs) === "string") {
+      setErr(CorpFs);
+    } else {
+      setFsData(CorpFs);
     }
-    console.log(corpCode)
   };
-  
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -81,34 +61,11 @@ function App() {
         <table>
           <thead>
             <tr>
-              <th>항목</th>
-              <th>{convertDateToQurter(fsData[0].bfefrmtrm_dt)}</th>
-              <th>{convertDateToQurter(fsData[0].frmtrm_dt)}</th>
-              <th>{convertDateToQurter(fsData[0].thstrm_dt)}</th>
+              {fsData?.map((data) => <th>{data.bsns_yearAndQuarter}</th>)}
             </tr>
           </thead>
           <tbody>
-            {fsData?.map((item, index) => {
-              if (item.fs_nm === "연결재무제표") {
-                const bfefrmtrm_amount = Number(
-                  item.bfefrmtrm_amount.replace(/,/g, "")
-                );
-                const frmtrm_amount = Number(
-                  item.frmtrm_amount.replace(/,/g, "")
-                );
-                const thstrm_amount = Number(
-                  item.thstrm_amount.replace(/,/g, "")
-                );
-                return (
-                  <tr key={index}>
-                    <td>{item.account_nm}</td>
-                    <td>{Math.floor(bfefrmtrm_amount / unit).toLocaleString()}</td>
-                    <td>{Math.floor(frmtrm_amount / unit).toLocaleString()}</td>
-                    <td>{Math.floor(thstrm_amount / unit).toLocaleString()}</td>
-                  </tr>
-                )
-              }
-            })}
+            {fsData?.map((data) => <><td>{data.account_nm}</td>{data.amount.map((num) => <td>{num}</td>)}</>)}
           </tbody>
         </table>
       )}
